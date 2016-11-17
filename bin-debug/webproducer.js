@@ -6,7 +6,9 @@ var WebProducer = function (options) {
   this.height = options.height || 240;
   this.el = null;
   this.trace = options.trace;
-  WebProducer[this.id] = this; 
+  this.xiSwfUrlString = options.xiSwfUrlString || 'playerProductInstall.swf';
+  this.producerSwfUrlString = options.producerSwfUrlString || 'producer.swf';
+  WebProducer[this.id] = this;
   this.createElement(this.id, this.width, this.height);
   this.methods = [
       'setCredentials', 'getCredentials',
@@ -38,7 +40,6 @@ WebProducer.js_event = function (producerId, eventName, arg1, arg2) {
 WebProducer.prototype = {
   createElement: function (id, width, height) {
     var swfVersionStr = "11.4.0";
-    var xiSwfUrlStr = "playerProductInstall.swf";
     var flashvars = { id: id };
     var params = {};
     params.quality = "high";
@@ -48,38 +49,38 @@ WebProducer.prototype = {
     var attributes = {};
     attributes.align = "left";
     swfobject.embedSWF(
-        "producer.swf", "producer", 
+        this.producerSwfUrlString, "producer",
         width, height,
-        swfVersionStr, xiSwfUrlStr, 
+        swfVersionStr, this.xiSwfUrlString,
         flashvars, params, attributes);
     // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
     swfobject.createCSS("#producer", "display:block;text-align:left;");
-    
+
     var self = this;
     this.on('ready', function () {
       self.on_ready.apply(self, arguments);
     });
   },
-  
+
   on_ready: function () {
     this.el = document.getElementById(this.id);
     this.flash = this.el;
     var methods = this.methods;
     var self = this;
-    methods.forEach(function (method) {        
+    methods.forEach(function (method) {
       self[method] = function () {
         return self.el[method].apply(self.el, arguments);
       };
     });
   },
-  
+
   // Minimal event emitter prototype
   on: function(event, fct){
     this._events = this._events || {};
     this._events[event] = this._events[event] || [];
     this._events[event].push(fct);
   },
-  
+
   off: function(event, fct){
     this._events = this._events || {};
     if( event in this._events === false  )  return;
@@ -96,7 +97,7 @@ WebProducer.prototype = {
     var self = this;
     var wrapper = function () {
       self.off(event, wrapper);
-      fct.apply(this, arguments); 
+      fct.apply(this, arguments);
     };
     this.on(event, wrapper);
   }
