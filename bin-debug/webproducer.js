@@ -48,12 +48,12 @@ WebProducer.prototype = {
     var attributes = {};
     attributes.align = "left";
     swfobject.embedSWF(
-        "producer.swf", "producer", 
+        "producer.swf", this.id, 
         width, height,
         swfVersionStr, xiSwfUrlStr, 
         flashvars, params, attributes);
     // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
-    swfobject.createCSS("#producer", "display:block;text-align:left;");
+    swfobject.createCSS("#" + this.id, "display:block;text-align:left;");
     
     var self = this;
     this.on('ready', function () {
